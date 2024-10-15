@@ -35,14 +35,14 @@ public class ArticleController {
         return service.create(article,managerId);
     }
 
-    @PostMapping("/{articleId}/accept")
-    public void approveArticle(@PathVariable UUID articleId) {
-        service.approveArticle(articleId);
+    @PostMapping("/{articleId}/accept/{managerId}")
+    public void approveArticle(@PathVariable UUID articleId, @PathVariable String managerId) {
+        service.approveArticle(articleId,managerId);
     }
 
-    @PostMapping("/{articleId}/reject")
-    public void rejectArticle(@PathVariable UUID articleId) {
-        service.rejectArticle(articleId);
+    @PostMapping("/{articleId}/reject/{managerId}")
+    public void rejectArticle(@PathVariable UUID articleId, @PathVariable String managerId) {
+        service.rejectArticle(articleId,managerId);
     }
 
     @PutMapping("/{articleId}")
