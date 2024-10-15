@@ -15,4 +15,5 @@ public interface ArticleMapper {
 
     ArticleResponseDTO toDto(Article article);
 
+
 }

@@ -1,9 +1,14 @@
 package com.sumerge.careertrack.wiki_svc.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import com.sumerge.careertrack.wiki_svc.entities.enums.ActionEnum;
+import com.sumerge.careertrack.wiki_svc.entities.enums.ArticleType;
+import com.sumerge.careertrack.wiki_svc.entities.enums.EntityTypeEnum;
+import com.sumerge.careertrack.wiki_svc.entities.requests.NotificationRequestDTO;
 import org.springframework.stereotype.Service;
 
 import com.sumerge.careertrack.wiki_svc.entities.Article;
@@ -16,12 +21,15 @@ import com.sumerge.careertrack.wiki_svc.repositories.ArticleRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.management.Notification;
+
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
 
     private final ArticleRepository repository;
     private final ArticleMapper mapper;
+    private final ProducerService producerService;
 
     public List<ArticleResponseDTO> findAll() {
         List<Article> articles = repository.findAll();
@@ -36,12 +44,16 @@ public class ArticleService {
         return mapper.toDto(article);
     }
 
-    public ArticleResponseDTO create(ArticleRequestDTO articleDTO) {
+    public ArticleResponseDTO create(ArticleRequestDTO articleDTO,String id) {
+        UUID managerId = UUID.fromString(id);
         Article articleObj = mapper.toArticle(articleDTO);
         Article savedArticle = repository.save(articleObj);
+        List<UUID> receiverId = new ArrayList<UUID>();
+        receiverId.add(UUID.fromString(id));
+        NotificationRequestDTO notification=createNotification(savedArticle,receiverId);
+        producerService.sendMessage(notification);
         return mapper.toDto(savedArticle);
     }
-
     public ArticleResponseDTO updateArticle(UUID articleId, ArticleRequestDTO dto) {
         Article article = repository.findById(articleId)
                 .orElseThrow(() -> new DoesNotExistException(
@@ -63,8 +75,11 @@ public class ArticleService {
         Article article = repository.findById(articleId)
                 .orElseThrow(() -> new DoesNotExistException(
                         DoesNotExistException.ARTICLE_ID, articleId));
-
+        List<UUID> receiverId = new ArrayList<UUID>();
         article.setApprovalStatus(ApprovalStatus.APPROVED);
+        receiverId.add(article.getAuthor());
+        NotificationRequestDTO notification=createNotification(article,receiverId);
+        producerService.sendMessage(notification);
         repository.save(article);
     }
 
@@ -74,6 +89,11 @@ public class ArticleService {
                         DoesNotExistException.ARTICLE_ID, articleId));
 
         article.setApprovalStatus(ApprovalStatus.REJECTED);
+        List<UUID> receiverId = new ArrayList<UUID>();
+        receiverId.add(article.getAuthor());
+        NotificationRequestDTO notification=createNotification(article,receiverId);
+
+        producerService.sendMessage(notification);
         repository.save(article);
     }
 
@@ -89,6 +109,17 @@ public class ArticleService {
         }
 
         repository.deleteById(articleId);
+    }
+    public NotificationRequestDTO createNotification(Article savedArticle,  List<UUID> receiverId) {
+        return NotificationRequestDTO.builder()
+                .seen(false)
+                .date(savedArticle.getSubmissionDate())
+                .actorId(savedArticle.getAuthor())
+                .entityId(savedArticle.getId())
+                .actionName(ActionEnum.APPROVAL)
+                .entityTypeName(savedArticle.getType()==ArticleType.BLOG? EntityTypeEnum.BLOG:EntityTypeEnum.WIKI)
+                .receiverID(receiverId)
+                .build();
     }
 
 }
