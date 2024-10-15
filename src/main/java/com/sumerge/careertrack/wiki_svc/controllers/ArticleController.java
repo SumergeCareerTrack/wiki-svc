@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +22,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/article")
+@CrossOrigin
+@RequestMapping("/articles")
 @RequiredArgsConstructor
 public class ArticleController {
 
@@ -42,7 +44,7 @@ public class ArticleController {
         return service.create(article);
     }
 
-    @PostMapping("/{articleId}/accept")
+    @PostMapping("/{articleId}/approve")
     public void approveArticle(@PathVariable UUID articleId) {
         service.approveArticle(articleId);
     }
