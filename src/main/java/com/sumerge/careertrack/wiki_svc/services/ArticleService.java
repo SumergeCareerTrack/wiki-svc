@@ -36,6 +36,19 @@ public class ArticleService {
         return mapper.toDto(article);
     }
 
+    public List<ArticleResponseDTO> findByAuthorId(UUID authorId) {
+        List<Article> articles = repository.findByAuthor(authorId);
+
+        return articles.stream().map(mapper::toDto).toList();
+    }
+
+    public List<ArticleResponseDTO> findByBatchAuthorId(List<UUID> authorIds) {
+        List<Article> articles = authorIds.stream().map(repository::findByAuthor)
+                .flatMap(articleList -> articleList.stream()).toList();
+
+        return articles.stream().map(mapper::toDto).toList();
+    }
+
     public ArticleResponseDTO create(ArticleRequestDTO articleDTO) {
         Article articleObj = mapper.toArticle(articleDTO);
         Article savedArticle = repository.save(articleObj);

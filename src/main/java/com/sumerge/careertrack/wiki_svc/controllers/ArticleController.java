@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,9 +20,6 @@ import com.sumerge.careertrack.wiki_svc.entities.responses.ArticleResponseDTO;
 import com.sumerge.careertrack.wiki_svc.services.ArticleService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @CrossOrigin
@@ -37,6 +37,18 @@ public class ArticleController {
     @GetMapping("/{articleId}")
     public ArticleResponseDTO getArticle(@PathVariable UUID articleId) {
         return service.findById(articleId);
+    }
+
+    @GetMapping("/author/{authorId}")
+    public List<ArticleResponseDTO> getByAuthorId(@PathVariable UUID authorId) {
+        return service.findByAuthorId(authorId);
+    }
+
+    @PostMapping("/author/batch")
+    public List<ArticleResponseDTO> getByBatchAuthorId(@RequestBody List<UUID> authorIds) {
+        List<ArticleResponseDTO> articles = service.findByBatchAuthorId(authorIds);
+
+        return articles;
     }
 
     @PostMapping
