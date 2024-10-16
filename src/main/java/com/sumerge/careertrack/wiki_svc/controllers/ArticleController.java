@@ -4,7 +4,20 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import com.sumerge.careertrack.wiki_svc.entities.requests.ArticleRequestDTO;
 import com.sumerge.careertrack.wiki_svc.entities.responses.ArticleResponseDTO;
@@ -14,7 +27,8 @@ import lombok.RequiredArgsConstructor;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/article")
+@CrossOrigin
+@RequestMapping("/articles")
 @RequiredArgsConstructor
 public class ArticleController {
 
@@ -29,6 +43,17 @@ public class ArticleController {
     public ArticleResponseDTO getArticle(@PathVariable UUID articleId) {
         return service.findById(articleId);
     }
+    @GetMapping("/author/{authorId}")
+    public List<ArticleResponseDTO> getByAuthorId(@PathVariable UUID authorId) {
+        return service.findByAuthorId(authorId);
+    }
+      @PostMapping("/author/batch")
+    public List<ArticleResponseDTO> getByBatchAuthorId(@RequestBody List<UUID> authorIds) {
+        List<ArticleResponseDTO> articles = service.findByBatchAuthorId(authorIds);
+
+        return articles;
+    }
+
 
     @PostMapping("/{managerId}")
     public ArticleResponseDTO createArticle(@RequestBody ArticleRequestDTO article, @PathVariable String managerId){
@@ -36,13 +61,14 @@ public class ArticleController {
     }
 
     @PostMapping("/{articleId}/accept/{managerId}")
-    public void approveArticle(@PathVariable UUID articleId, @PathVariable String managerId) {
-        service.approveArticle(articleId,managerId);
+    public void approveArticle(@PathVariable UUID articleId, @PathVariable String managerId,@RequestBody String comment) {
+        service.approveArticle(articleId,managerId,comment);
     }
 
     @PostMapping("/{articleId}/reject/{managerId}")
-    public void rejectArticle(@PathVariable UUID articleId, @PathVariable String managerId) {
-        service.rejectArticle(articleId,managerId);
+    public void rejectArticle(@PathVariable UUID articleId, @PathVariable String managerId,@RequestBody String comment) {
+        service.rejectArticle(articleId,managerId,comment);
+
     }
 
     @PutMapping("/{articleId}")

@@ -44,6 +44,18 @@ public class ArticleService {
 
         return mapper.toDto(article);
     }
+      public List<ArticleResponseDTO> findByAuthorId(UUID authorId) {
+        List<Article> articles = repository.findByAuthor(authorId);
+
+        return articles.stream().map(mapper::toDto).toList();
+    }
+      public List<ArticleResponseDTO> findByBatchAuthorId(List<UUID> authorIds) {
+        List<Article> articles = authorIds.stream().map(repository::findByAuthor)
+                .flatMap(articleList -> articleList.stream()).toList();
+
+        return articles.stream().map(mapper::toDto).toList();
+    }
+
 
     public ArticleResponseDTO create(ArticleRequestDTO articleDTO,String id) {
         Article articleObj = mapper.toArticle(articleDTO);
@@ -71,29 +83,37 @@ public class ArticleService {
         return mapper.toDto(article);
     }
 
-    public void approveArticle(UUID articleId,String managerID) {
+
+    public void approveArticle(UUID articleId,String managerID,String comment) {
+
         Article article = repository.findById(articleId)
                 .orElseThrow(() -> new DoesNotExistException(
                         DoesNotExistException.ARTICLE_ID, articleId));
         List<UUID> receiverId = new ArrayList<UUID>();
         article.setApprovalStatus(ApprovalStatus.APPROVED);
+          article.setComment(comment);
+
         receiverId.add(article.getAuthor());
         NotificationRequestDTO notification=createNotification(article,receiverId,ActionEnum.APPROVAL,UUID.fromString(managerID),new Date());
         producerService.sendMessage(notification);
         repository.save(article);
     }
 
-    public void rejectArticle(UUID articleId,String managerId) {
+
+    public void rejectArticle(UUID articleId, String managerId,String comment) {
         Article article = repository.findById(articleId)
                 .orElseThrow(() -> new DoesNotExistException(
                         DoesNotExistException.ARTICLE_ID, articleId));
 
         article.setApprovalStatus(ApprovalStatus.REJECTED);
+
         List<UUID> receiverId = new ArrayList<UUID>();
         receiverId.add(article.getAuthor());
+        article.setComment(comment);
         NotificationRequestDTO notification=createNotification(article,receiverId,ActionEnum.REJECTION,UUID.fromString(managerId),new Date());
 
         producerService.sendMessage(notification);
+
         repository.save(article);
     }
 
