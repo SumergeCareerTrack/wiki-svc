@@ -18,14 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.sumerge.careertrack.wiki_svc.entities.requests.ArticleRequestDTO;
 import com.sumerge.careertrack.wiki_svc.entities.responses.ArticleResponseDTO;
 import com.sumerge.careertrack.wiki_svc.services.ArticleService;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin
 @RestController
 @CrossOrigin
 @RequestMapping("/articles")
@@ -43,31 +41,34 @@ public class ArticleController {
     public ArticleResponseDTO getArticle(@PathVariable UUID articleId) {
         return service.findById(articleId);
     }
+
     @GetMapping("/author/{authorId}")
     public List<ArticleResponseDTO> getByAuthorId(@PathVariable UUID authorId) {
         return service.findByAuthorId(authorId);
     }
-      @PostMapping("/author/batch")
+
+    @PostMapping("/author/batch")
     public List<ArticleResponseDTO> getByBatchAuthorId(@RequestBody List<UUID> authorIds) {
         List<ArticleResponseDTO> articles = service.findByBatchAuthorId(authorIds);
 
         return articles;
     }
 
-
     @PostMapping("/{managerId}")
-    public ArticleResponseDTO createArticle(@RequestBody ArticleRequestDTO article, @PathVariable String managerId){
-        return service.create(article,managerId);
+    public ArticleResponseDTO createArticle(@RequestBody ArticleRequestDTO article, @PathVariable String managerId) {
+        return service.create(article, managerId);
     }
 
     @PostMapping("/{articleId}/accept/{managerId}")
-    public void approveArticle(@PathVariable UUID articleId, @PathVariable String managerId,@RequestBody String comment) {
-        service.approveArticle(articleId,managerId,comment);
+    public void approveArticle(@PathVariable UUID articleId, @PathVariable String managerId,
+            @RequestBody String comment) {
+        service.approveArticle(articleId, managerId, comment);
     }
 
     @PostMapping("/{articleId}/reject/{managerId}")
-    public void rejectArticle(@PathVariable UUID articleId, @PathVariable String managerId,@RequestBody String comment) {
-        service.rejectArticle(articleId,managerId,comment);
+    public void rejectArticle(@PathVariable UUID articleId, @PathVariable String managerId,
+            @RequestBody String comment) {
+        service.rejectArticle(articleId, managerId, comment);
 
     }
 
