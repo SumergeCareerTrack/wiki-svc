@@ -57,13 +57,13 @@ public class ArticleController {
     }
 
     @PostMapping("/{articleId}/approve")
-    public void approveArticle(@PathVariable UUID articleId) {
-        service.approveArticle(articleId);
+    public void approveArticle(@PathVariable UUID articleId, @RequestBody String comment) {
+        service.approveArticle(articleId, comment);
     }
 
     @PostMapping("/{articleId}/reject")
-    public void rejectArticle(@PathVariable UUID articleId) {
-        service.rejectArticle(articleId);
+    public void rejectArticle(@PathVariable UUID articleId, @RequestBody String comment) {
+        service.rejectArticle(articleId, comment);
     }
 
     @PutMapping("/{articleId}")

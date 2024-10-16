@@ -72,21 +72,23 @@ public class ArticleService {
         return mapper.toDto(article);
     }
 
-    public void approveArticle(UUID articleId) {
+    public void approveArticle(UUID articleId, String comment) {
         Article article = repository.findById(articleId)
                 .orElseThrow(() -> new DoesNotExistException(
                         DoesNotExistException.ARTICLE_ID, articleId));
 
         article.setApprovalStatus(ApprovalStatus.APPROVED);
+        article.setComment(comment);
         repository.save(article);
     }
 
-    public void rejectArticle(UUID articleId) {
+    public void rejectArticle(UUID articleId, String comment) {
         Article article = repository.findById(articleId)
                 .orElseThrow(() -> new DoesNotExistException(
                         DoesNotExistException.ARTICLE_ID, articleId));
 
         article.setApprovalStatus(ApprovalStatus.REJECTED);
+        article.setComment(comment);
         repository.save(article);
     }
 
