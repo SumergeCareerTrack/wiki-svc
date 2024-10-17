@@ -42,7 +42,7 @@ public class Article {
     @Column(nullable = false)
     private ApprovalStatus approvalStatus;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition="TEXT")
     private String body;
 
     private String comment;
