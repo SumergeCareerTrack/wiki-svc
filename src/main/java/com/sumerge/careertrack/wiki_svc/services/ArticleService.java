@@ -5,11 +5,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.sumerge.careertrack.wiki_svc.entities.enums.ActionEnum;
 import com.sumerge.careertrack.wiki_svc.entities.enums.ArticleType;
 import com.sumerge.careertrack.wiki_svc.entities.enums.EntityTypeEnum;
 import com.sumerge.careertrack.wiki_svc.entities.requests.NotificationRequestDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.sumerge.careertrack.wiki_svc.entities.Article;
@@ -36,6 +40,14 @@ public class ArticleService {
         List<Article> articles = repository.findAll();
         return articles.stream().map(mapper::toDto).toList();
     }
+    public List<ArticleResponseDTO> findAllPaginated(Pageable pageable) {
+        Page<Article> articles = repository.findAll(pageable);
+
+        return articles.getContent().stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
 
     public ArticleResponseDTO findById(UUID articleId) {
         Article article = repository.findById(articleId)
