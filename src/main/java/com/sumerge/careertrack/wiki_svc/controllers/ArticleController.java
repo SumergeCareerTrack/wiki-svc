@@ -3,8 +3,11 @@ package com.sumerge.careertrack.wiki_svc.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,8 +36,15 @@ public class ArticleController {
     private final ArticleService service;
 
     @GetMapping
-    public List<ArticleResponseDTO> getAll() {
-        return service.findAll();
+    public ResponseEntity<List<ArticleResponseDTO>> getAll(@RequestParam(required = false) Integer page,
+                                           @RequestParam(required = false) Integer size) {
+        if (page == null || size == null || size == 0) {
+
+            return ResponseEntity.ok(service.findAll());
+        } else {
+            Pageable pageable = PageRequest.of(page, size);
+            return ResponseEntity.ok(service.findAllPaginated(pageable));
+        }
     }
 
     @GetMapping("/{articleId}")
